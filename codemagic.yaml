@@ -81,7 +81,7 @@ workflows:
             echo "::warning::未设置 XCODE_TEAM_ID，跳过团队覆盖；签名团队将由 xcode-project use-profiles 按 App Store Connect 集成里的证书/描述文件决定"
           else
             echo "$XCODE_TEAM_ID" | grep -Eq '^[A-Z0-9]{10}$' || {
-              echo "::error::XCODE_TEAM_ID 必须是 10 位字母数字（例：TZX5LG7ZW5），当前值不合法"
+              echo "::error::XCODE_TEAM_ID 必须是 10 位字母数字（例：ABCDE12345），当前值不合法"
               exit 1
             }
             # macOS 自带 BSD sed（-i ''），GNU sed 写法不同，这里两种都兼容
