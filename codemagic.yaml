@@ -158,10 +158,93 @@ workflows:
             echo "::warning::未设置 APP_STORE_APPLE_ID，构建号只按 Codemagic 计数与 pubspec 推导；若 ASC 上已有更大的号会被拒收"
           fi
           echo "CFBundleVersion = $BUILD_NUMBER"
-          # 优先用 xcode-project use-profiles 生成的导出配置；没有就退回仓库里的 ios/ExportOptions.plist
-          EXPORT_OPTIONS=/Users/builder/export_options.plist
-          [ -f "$EXPORT_OPTIONS" ] || EXPORT_OPTIONS=ios/ExportOptions.plist
-          echo "export options = $EXPORT_OPTIONS"
+
+          # ── 导出配置（ExportOptions.plist）：确定性选取，绝不静默退回不完整的文件 ──
+          # 1) 首选 xcode-project use-profiles 生成的官方文件：
+          #    cli-tools 的 use-profiles 默认把生成的导出配置写到 $HOME/export_options.plist
+          #    （Codemagic 构建机上 = /Users/builder/export_options.plist），
+          #    Codemagic 官方 Flutter 示例用的就是这个路径。
+          # 2) 其次 $CM_BUILD_DIR/export_options.plist。
+          # 3) 都没有 → 用 $XCODE_TEAM_ID + 已安装的描述文件现场生成一份完整配置。
+          # 4) 仍拿不到 → ::error:: 退出（不猜、不编造描述文件名）。
+          # 明确不做的事：不退回仓库里的 ios/ExportOptions.plist —— 那份只有
+          # method / signingStyle / destination 三个键，没有 teamID、没有 provisioningProfiles，
+          # 静默用它会在 xcodebuild 导出阶段才炸，失败点离根因很远；
+          # 而且它的 destination=upload 会让 xcodebuild 先上传一次，
+          # 之后 Codemagic 的 submit_to_testflight 再传同一个 build 号 → 重复上传被 Apple 拒。
+          EXPORT_OPTIONS=""
+          for CAND in "$HOME/export_options.plist" /Users/builder/export_options.plist "${CM_BUILD_DIR:-/tmp}/export_options.plist"; do
+            if [ -f "$CAND" ] && grep -q "<key>method</key>" "$CAND"; then
+              EXPORT_OPTIONS="$CAND"
+              break
+            fi
+          done
+          if [ -n "$EXPORT_OPTIONS" ]; then
+            echo "export options = $EXPORT_OPTIONS (来源：xcode-project use-profiles 生成)"
+          else
+            echo "::notice::use-profiles 没有生成导出配置，改为运行时生成一份完整配置"
+            TEAM_ID="${XCODE_TEAM_ID:-}"
+            PROFILE_NAME=""
+            # 描述文件名：先看 use-profiles 是否把 PROVISIONING_PROFILE_SPECIFIER 写进了工程
+            if [ -f ios/Runner.xcodeproj/project.pbxproj ]; then
+              PROFILE_NAME=$(grep -m1 -E 'PROVISIONING_PROFILE_SPECIFIER = "?[^";]+"?' ios/Runner.xcodeproj/project.pbxproj \
+                | sed -E 's/.*= "?([^";]+)"?;?.*/\1/')
+            fi
+            # 再从已安装的描述文件里找 bundle id 匹配的那一个（macOS 的 security cms 解出 Name）
+            if [ -z "$PROFILE_NAME" ] && command -v security >/dev/null 2>&1; then
+              for P in "$HOME/Library/MobileDevice/Provisioning Profiles"/*.mobileprovision \
+                       "$HOME/Library/Developer/Xcode/UserData/Provisioning Profiles"/*.mobileprovision; do
+                [ -f "$P" ] || continue
+                PROFILE_XML=$(security cms -D -i "$P" 2>/dev/null) || continue
+                printf '%s' "$PROFILE_XML" | grep -q "top.headwindx.localmind" || continue
+                PROFILE_NAME=$(printf '%s' "$PROFILE_XML" | sed -nE 's:.*<key>Name</key>[[:space:]]*<string>([^<]*)</string>.*:\1:p' | head -1)
+                if [ -n "$PROFILE_NAME" ]; then
+                  break
+                fi
+              done
+            fi
+            if ! printf '%s' "$TEAM_ID" | grep -Eq '^[A-Z0-9]{10}$'; then
+              echo "export options = (none) —— 没有可用的导出配置，构建到此终止"
+              echo "::error::use-profiles 没有生成导出配置，且 XCODE_TEAM_ID 未设置或不是 10 位字母数字，无法生成完整导出配置"
+              echo "::error::下一步：① 看 use-profiles 那一步的日志（integrations.app_store_connect 的集成名要和控制台一致）；② 在 Codemagic 应用设置里补 XCODE_TEAM_ID（10 位 Team ID）"
+              exit 1
+            fi
+            if [ -z "$PROFILE_NAME" ]; then
+              echo "export options = (none) —— 没有可用的导出配置，构建到此终止"
+              echo "::error::use-profiles 没有生成导出配置，且已安装的描述文件里找不到 bundle id 为 top.headwindx.localmind 的 App Store 描述文件，无法生成完整导出配置"
+              echo "::error::下一步：① 确认 integrations.app_store_connect 指向的集成在控制台存在；② 确认 environment.ios_signing.bundle_identifier 与已注册的 App ID 一致；③ 确认 App ID 已勾选 Push Notifications 后重跑构建"
+              exit 1
+            fi
+            GENERATED="${CM_BUILD_DIR:-/tmp}/export_options.generated.plist"
+            cat > "$GENERATED" <<PLIST
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key>
+            <string>app-store</string>
+            <key>teamID</key>
+            <string>$TEAM_ID</string>
+            <key>signingStyle</key>
+            <string>manual</string>
+            <key>provisioningProfiles</key>
+            <dict>
+              <key>top.headwindx.localmind</key>
+              <string>$PROFILE_NAME</string>
+            </dict>
+            <key>uploadSymbols</key>
+            <true/>
+            <key>uploadBitcode</key>
+            <false/>
+            <key>stripSwiftSymbols</key>
+            <true/>
+          </dict>
+          </plist>
+          PLIST
+            EXPORT_OPTIONS="$GENERATED"
+            echo "export options = $EXPORT_OPTIONS (运行时生成：teamID=$TEAM_ID, provisioningProfile=$PROFILE_NAME)"
+          fi
+
           flutter build ipa \
             --release \
             --build-number="$BUILD_NUMBER" \

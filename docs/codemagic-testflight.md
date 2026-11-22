@@ -240,12 +240,26 @@ Codemagic 官方口径（"Starting builds automatically with codemagic.yaml"）�
 
 1. `Override Xcode development team` —— 有 `XCODE_TEAM_ID` 就覆盖工程里的 3 处 Team ID；没配就跳过并打 warning。
 2. `Set up code signing settings on Xcode project` —— `xcode-project use-profiles`：从 App Store Connect 集成取
-   distribution 证书 + 描述文件（按 `bundle_identifier: top.headwindx.localmind`），写进工程签名设置。
+   distribution 证书 + 描述文件（按 `bundle_identifier: top.headwindx.localmind`），写进工程签名设置，
+   并把生成的导出配置写到 `$HOME/export_options.plist`（下一步要用它）。
 3. `Get Flutter packages` —— `flutter pub get`。
 4. `Install pods` —— 在含 `Podfile` 的目录跑 `pod install`（仓库里是 `ios/Podfile`）。
 5. `Build IPA` —— `flutter build ipa --release --build-number=<号> --export-options-plist=<路径>`。构建号算法见 §3.6。
-   导出配置优先用 `xcode-project use-profiles` 生成的 `/Users/builder/export_options.plist`；
-   没有就退回仓库里的 `ios/ExportOptions.plist`（method `app-store` / signingStyle `automatic` / destination `upload`）。
+   导出配置（ExportOptions.plist）按**确定性规则**选，日志里必有一行 `export options = <路径>`：
+
+   ① 首选 `xcode-project use-profiles` 生成的 `$HOME/export_options.plist`
+   （Codemagic 构建机上就是 `/Users/builder/export_options.plist`；cli-tools 的 `use-profiles` 默认就写这个路径，
+   Codemagic 官方 Flutter 示例用的也是同一个路径）；
+   ② 其次 `$CM_BUILD_DIR/export_options.plist`；
+   ③ 都没有 → 用 `XCODE_TEAM_ID` + 已安装的 App Store 描述文件**现场生成**一份完整配置
+   （method `app-store` / `teamID` / signingStyle `manual` / `provisioningProfiles` 映射到 `top.headwindx.localmind`）；
+   ④ 仍然拿不到 → 脚本 `::error::` 退出（rc≠0），日志写清下一步该查什么，不会带着半份配置往下跑。
+
+   **不再退回仓库里的 `ios/ExportOptions.plist`**。那份只有 method / signingStyle / destination 三个键，
+   没有 `teamID`、没有 `provisioningProfiles` 映射：静默用它，失败点会落在 xcodebuild 的导出阶段，
+   离根因（use-profiles 没产出配置、集成名对不上、App ID 没注册）很远；
+   而且它带 `destination=upload`，xcodebuild 会先上传一次，之后 Codemagic 的 `submit_to_testflight`
+   再传同一个 build 号 → 重复上传被 Apple 拒。该文件现在只是留在仓库里的历史文件，CI 不再读它。
 6. 发布：`publishing.app_store_connect`（`auth: integration`）→ 上传并提交到 TestFlight 组 **`Internal Testers`**。
 
 ### 3.6 构建号（bundle version）策略：结论与理由
@@ -298,7 +312,8 @@ ASC 侧三个命令都查一遍、取返回数字的最大值（命令名取自 
 | 401 / 403（ASC 相关） | `.p8` / Key ID / Issuer ID 不匹配，或角色不是 App Manager → 重做 §1.3 / §3.1 |
 | 提示找不到 App Store Connect 集成 / 签名材料为空 | `integrations.app_store_connect` 的名字和控制台里的不一致 → §3.1（控制台改名必须同步改 yaml 这一行） |
 | 上传被拒：`The bundle version must be greater than the previously uploaded version` | 构建号撞号：配 `APP_STORE_APPLE_ID`（§3.2）+ 环境变量组 `app_store`（§3.3），让号取自 ASC 最大号 + 1；不配则至少靠 `pubspec.yaml` 的 build 号兜底 |
-| `No such file or directory: /Users/builder/export_options.plist` | `xcode-project use-profiles` 没跑成 → 看第 2 步日志；仓库里的 `ios/ExportOptions.plist` 是兜底 |
+| 导出配置没拿到（日志出现 `export options = (none)` + `::error::use-profiles 没有生成导出配置…`） | 按 §3.5 第 5 步的分支走：① 看 `xcode-project use-profiles` 那一步的日志（`integrations.app_store_connect` 的集成名要和控制台一致）；② 补 `XCODE_TEAM_ID`（§3.2，10 位 Team ID）；③ 确认 `environment.ios_signing.bundle_identifier` 与已注册的 App ID 一致。**CI 不会再退回仓库里那份 3 键 plist**，所以这个错会直接停在构建脚本里 |
+| 上传被拒：`This upload is invalid / 已经上传过同一个 build 号` | 导出配置里带了 `destination=upload` → xcodebuild 已上传一次，Codemagic 的 `submit_to_testflight` 又传一遍。CI 自己生成的导出配置不带 `destination`；若日志显示用的是 use-profiles 生成的那份，确认里面没有 `destination=upload` |
 | `pod install` 失败 | CocoaPods 仓库拉取超时；重跑构建，或在本地 `cd ios && pod install` 后再触发 |
 | Codemagic 找不到 `app_store` 环境变量组 | 删掉 `codemagic.yaml` 里 `environment.groups` 两行 → §3.3 |
 | 上传后 TestFlight 看不到 | App 记录的 Bundle ID 与构建包不一致 → 核对 §1.2 与工程里的 `PRODUCT_BUNDLE_IDENTIFIER`（应为 `top.headwindx.localmind`） |
