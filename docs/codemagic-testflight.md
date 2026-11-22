@@ -20,6 +20,7 @@
 | 仓库 id | `109`（2026-11-22 15:01:47Z 创建） |
 | 内容状态 | GitHub 侧已全量推入：**11 个分支 + 30 个 tag**（2026-11-22 23:15 实测；分支数随 CI/文档分支增减，以 `git ls-remote --heads` 为准）；`main` = `bb564e6` |
 | GitHub ↔ Gitea 自动镜像 | 未配置；当前是一次性全量推送，之后靠人工同步 |
+| 触发分支 | `docs/gitea-repo-live` —— `codemagic.yaml` 的 `triggering.branch_patterns` 指这里；main 冻结在 `bb564e6`（旧 yaml），不作为触发源 |
 
 - **现状（2026-11-22 核对）**：`one/localmind-x` **已经建好，内容也全量推完了**——
   仓库 id `109`，2026-11-22 15:01:47Z 创建，私有，默认分支 `main`。
@@ -29,7 +30,8 @@
   核对方式：`git ls-remote --heads git@git.headwindx.top:one/localmind-x.git` → 11 个分支；
   `git ls-remote --tags …` → 30 个 tag。
 - **仓库已就位，CI 还差控制台两步**：Codemagic 还没接这个仓（Deploy Key 没加、webhook 没配），
-  所以现在推 main 还不会自动触发构建。这两步见 §2.2 / §2.3，是 Henry 在控制台点几下。
+  所以现在推触发分支还不会自动触发构建。这两步见 §2.2 / §2.3，是 Henry 在控制台点几下。
+  当前触发分支 = `docs/gitea-repo-live`（本仓 CI 配置所在分支）；main 已按 2026-11-22 决定冻结，不再作触发源。
 - **接 Gitea 不会断 CI**：Codemagic 的 **Add application → HTTPS/SSH** 支持任意自建 Git 仓库
   （见 §2.2）。`codemagic.yaml` 一行都不用改，把应用接上即可。
 - **过渡做法**：控制台还没接 Gitea 时，可以先按 §2.1 用 GitHub 授权接入跑通第一次构建
@@ -158,7 +160,7 @@ Codemagic 官方口径（"Starting builds automatically with codemagic.yaml"）�
 >    "while **push events successfully trigger automatic builds**, tag events do not work"，
 >    根因是 Codeberg 在 tag 事件里发 `X-Github-Event: create`，而 Codemagic 只认 push / pull_request。
 >    Codeberg 是 Gitea 的分支，同源同头。
-> ⇒ **Gitea 推 main（push）能触发构建；tag 事件不触发是已知限制且无解，本项目只用 push，不受影响。**
+> ⇒ **Gitea 推触发分支 `docs/gitea-repo-live`（push）能触发构建；tag 事件不触发是已知限制且无解，本项目只用 push，不受影响。**
 >
 > 兜底（万一首次推送没触发）：① 控制台手动 **Start build**（同一 workflow、同一脚本）；
 > ② Builds API（`api.codemagic.io/builds`）触发；③ 给 `codemagic.yaml` 加 `scheduling` 定时跑。
@@ -166,7 +168,7 @@ Codemagic 官方口径（"Starting builds automatically with codemagic.yaml"）�
 ### 2.4 选 workflow
 
 应用设置 → **Workflow** → 勾 **List user workflows / based on codemagic.yaml** → 选中 `ios-testflight`。
-构建触发已配置为「push 到 main」（触发源见 §2.3），也可以在应用页手动 **Start build**。
+构建触发已配置为「push 到 `docs/gitea-repo-live`」（触发源见 §2.3），也可以在应用页手动 **Start build**。
 
 ## 3. Codemagic：填签名与应用配置
 
@@ -234,7 +236,10 @@ Codemagic 官方口径（"Starting builds automatically with codemagic.yaml"）�
 
 ### 3.5 首次构建
 
-应用页 → **Start build** → 分支选 `main` → workflow 选 `ios-testflight` → 开始。
+应用页 → **Start build** → 分支选 `docs/gitea-repo-live` → workflow 选 `ios-testflight` → 开始。
+
+> 分支必须选 `docs/gitea-repo-live`：main 冻结在旧代码上，按 main 构建会跑旧 yaml，必失败。
+
 
 流水线依次执行：
 
@@ -318,7 +323,7 @@ ASC 侧三个命令都查一遍、取返回数字的最大值（命令名取自 
 | Codemagic 找不到 `app_store` 环境变量组 | 删掉 `codemagic.yaml` 里 `environment.groups` 两行 → §3.3 |
 | 上传后 TestFlight 看不到 | App 记录的 Bundle ID 与构建包不一致 → 核对 §1.2 与工程里的 `PRODUCT_BUNDLE_IDENTIFIER`（应为 `top.headwindx.localmind`） |
 | Codemagic 里保存仓库地址时报连不上 | 出网被拦：确认构建机能到 `git.headwindx.top:22` 与 `code.headwindx.top:443`；必要时放行 Codemagic 出口 IP → §0 |
-| 推 main 没触发构建 | 仓库已在 Gitea（§0），多半是 webhook 还没配 → §2.3（含三条兜底：手动 Start build / Builds API / 定时） |
+| 推触发分支没触发构建 | 仓库已在 Gitea（§0），多半是 webhook 还没配 → §2.3（含三条兜底：手动 Start build / Builds API / 定时） |
 
 ## 6. 配置对照表（yaml ↔ 控制台）
 
@@ -344,5 +349,5 @@ ASC 侧三个命令都查一遍、取返回数字的最大值（命令名取自 
 | 3 | **Codemagic 控制台里 ASC 集成的真实名字** | Team settings → Integrations → Developer Portal → Manage keys | 与 yaml 的 `integrations.app_store_connect` 对齐 | yaml 与控制台对不上 → 取不到签名材料，构建直接失败。当前 yaml 写的是 `App Manager`（依据见 §3.1） |
 | 4 | **Gitea API 令牌**（已非必需，建议补一条） | Gitea → Settings → Applications → Generate New Token（勾 `repo` / `write:repository`），令牌不经过聊天 | 建仓已完成、正本内容已全量推送；后续用 API 做加 Deploy Key 等操作时用（现有可用凭据是账号口令走 HTTP Basic，不是 API token） | 不给不影响 CI 跑通；只是后续 API 操作要走别的路 |
 | 5 | **Codemagic 应用接入 Gitea 的密钥方式**（Henry 在控制台点 Generate key pair 或上传自有私钥） | Codemagic → Add application → HTTPS/SSH | 决定用哪种密钥方式拿公钥去 Gitea 加 Deploy Key | 拉不到私有仓库 → 构建在 clone 阶段失败 |
-| 6 | **Codemagic 应用的 payload URL** | Codemagic 应用设置 → **Webhooks** → 复制 payload URL | 贴进 Gitea 仓库 Settings → Webhooks 的 Target URL | 推 main 不自动触发构建（只能手动 Start build） |
+| 6 | **Codemagic 应用的 payload URL** | Codemagic 应用设置 → **Webhooks** → 复制 payload URL | 贴进 Gitea 仓库 Settings → Webhooks 的 Target URL | 推触发分支不自动触发构建（只能手动 Start build） |
 | 7 | **内部测试组名** | App Store Connect → TestFlight | 与 yaml 的 `beta_groups` 一致 | 上传成功但发不进测试组 |

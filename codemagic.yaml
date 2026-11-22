@@ -8,7 +8,12 @@
 #             → 把 Codemagic 给的**公钥**加到 Gitea 仓库 Settings → Deploy Keys
 #   自动触发：Gitea 仓库 → Settings → Webhooks → Target URL = 从 Codemagic 应用设置 → Webhooks
 #             复制的 payload URL（官方口径：SSH/HTTPS 接入的仓库必须手配 webhook；不要自己拼 URL）
-#             Gitea 推 main 会带 GitHub 兼容头 X-GitHub-Event: push，Codemagic 认这个头 → push 可触发
+#             Gitea 推任何分支都会带 GitHub 兼容头 X-GitHub-Event: push，Codemagic 认这个头 → push 可触发
+#   触发分支：docs/gitea-repo-live —— 本仓 CI 配置所在分支。
+#             2026-11-22 Henry 决定：LocalMind X 独立发展、不回流上游，main 冻结在 bb564e6 不再动。
+#             所以触发分支不再是 main：main 上仍是旧 yaml（LocalMind ASC API Key / $FCI_BUILD_DIR /
+#             flutter 3.44.0，无 use-profiles / ios_signing），按 main 构建必失败。
+#             将来 Henry 指定长期主干分支时，只需要改下面 branch_patterns 那一行。
 #   兜底    ：控制台手动 Start build / Builds API
 #   GitHub 的 dehengxu/localmind-x 降级为只读备份，不再是构建源。
 #   仓库状态：one/localmind-x 已建好（私有，默认分支 main，2026-11-22），GitHub 侧内容已全量
@@ -46,7 +51,7 @@ workflows:
       events:
         - push
       branch_patterns:
-        - pattern: main
+        - pattern: docs/gitea-repo-live
           include: true
           source: true
 
