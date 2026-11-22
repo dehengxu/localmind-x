@@ -18,15 +18,15 @@
 | Gitea 版本 | 1.26.1（2026-11-22 实测 `https://code.headwindx.top/api/v1/version`） |
 | GitHub fork | `dehengxu/localmind-x` → **降级为只读备份/来源，不再是 CI 触发源** |
 | 仓库 id | `109`（2026-11-22 15:01:47Z 创建） |
-| 内容状态 | GitHub 侧已全量推入：**10 个分支 + 30 个 tag**；`main` = `bb564e6` |
+| 内容状态 | GitHub 侧已全量推入：**11 个分支 + 30 个 tag**（2026-11-22 23:15 实测；分支数随 CI/文档分支增减，以 `git ls-remote --heads` 为准）；`main` = `bb564e6` |
 | GitHub ↔ Gitea 自动镜像 | 未配置；当前是一次性全量推送，之后靠人工同步 |
 
 - **现状（2026-11-22 核对）**：`one/localmind-x` **已经建好，内容也全量推完了**——
   仓库 id `109`，2026-11-22 15:01:47Z 创建，私有，默认分支 `main`。
-  GitHub 侧的内容已全部推入正本：**10 个分支 + 30 个 tag**；
+  GitHub 侧的内容已全部推入正本：**11 个分支 + 30 个 tag**（2026-11-22 23:15 实测）；
   `main` = `bb564e6`，CI 分支 `ci/codemagic-gitea-source` = `e8dab9b`，
-  验收分支 `docs/codemagic-acceptance` = `45bce6b`（两端 commit hash 一致）。
-  核对方式：`git ls-remote --heads git@git.headwindx.top:one/localmind-x.git` → 10 个分支；
+  验收分支 `docs/codemagic-acceptance` = `b232502`（两端 commit hash 一致）。
+  核对方式：`git ls-remote --heads git@git.headwindx.top:one/localmind-x.git` → 11 个分支；
   `git ls-remote --tags …` → 30 个 tag。
 - **仓库已就位，CI 还差控制台两步**：Codemagic 还没接这个仓（Deploy Key 没加、webhook 没配），
   所以现在推 main 还不会自动触发构建。这两步见 §2.2 / §2.3，是 Henry 在控制台点几下。

@@ -12,7 +12,9 @@
 #   兜底    ：控制台手动 Start build / Builds API
 #   GitHub 的 dehengxu/localmind-x 降级为只读备份，不再是构建源。
 #   仓库状态：one/localmind-x 已建好（私有，默认分支 main，2026-11-22），GitHub 侧内容已全量
-#             推送（10 分支 + 30 tag）。现在缺的只有 Codemagic 侧两步：Deploy Key + webhook。
+#             推送（2026-11-22 23:15 实测：11 分支 + 30 tag；分支数随 CI/文档分支增减，
+#             以 `git ls-remote --heads` 为准）。现在缺的只有 Codemagic 侧两步：
+#             Deploy Key + webhook。
 #
 # ── 三处「名字」必须与控制台完全一致（大小写敏感），对不上构建直接失败 ──
 #   1) integrations.app_store_connect: App Manager
