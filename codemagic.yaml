@@ -1,7 +1,7 @@
 # Codemagic CI/CD — LocalMind X（Flutter iOS → TestFlight）
 # 控制台逐条操作清单见 docs/codemagic-testflight.md（改控制台前先读那份）
 #
-# ── 构建源：自建 Gitea（正本）────────────────────────────────────────────
+# ── 构建源：自建 Gitea（源码仓库）──────────────────────────────────────────
 #   Repository URL（SSH）  ：git@git.headwindx.top:one/localmind-x.git
 #   Repository URL（HTTPS）：https://code.headwindx.top/one/localmind-x.git
 #   接入方式：Codemagic → Add application → HTTPS/SSH → Generate key pair
@@ -15,7 +15,7 @@
 #             flutter 3.44.0，无 use-profiles / ios_signing），按 main 构建必失败。
 #             将来 Henry 指定长期主干分支时，只需要改下面 branch_patterns 那一行。
 #   兜底    ：控制台手动 Start build / Builds API
-#   GitHub 的 dehengxu/localmind-x 降级为只读备份，不再是构建源。
+#   GitHub 侧不作为构建源（角色待定）。
 #   仓库状态：one/localmind-x 已建好（私有，默认分支 main，2026-11-22），GitHub 侧内容已全量
 #             推送（2026-11-22 23:15 实测：11 分支 + 30 tag；分支数随 CI/文档分支增减，
 #             以 `git ls-remote --heads` 为准）。现在缺的只有 Codemagic 侧两步：
@@ -36,7 +36,7 @@
 #   3) environment.ios_signing.bundle_identifier: top.headwindx.localmind
 #      = Apple Developer Portal 里注册的 App ID
 #
-# 需要你（Henry）在 Codemagic 应用设置 → Environment variables 里自己加的（都可留空，留空走降级路径）：
+# 需要你（Henry）在 Codemagic 应用设置 → Environment variables 里自己加的（都可留空，留空走兜底路径）：
 #   XCODE_TEAM_ID      = 你的 10 位 Apple Team ID（Apple Developer Portal → Membership details）
 #   APP_STORE_APPLE_ID = App Store Connect 里 LocalMind X 的数字 Apple ID（纯数字，用于查 ASC 上的最新构建号）
 workflows:
