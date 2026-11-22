@@ -17,15 +17,24 @@
 | HTTPS 远端 | `https://code.headwindx.top/one/localmind-x.git` |
 | Gitea 版本 | 1.26.1（2026-11-22 实测 `https://code.headwindx.top/api/v1/version`） |
 | GitHub fork | `dehengxu/localmind-x` → **降级为只读备份/来源，不再是 CI 触发源** |
+| 仓库 id | `109`（2026-11-22 15:01:47Z 创建） |
+| 内容状态 | GitHub 侧已全量推入：**10 个分支 + 30 个 tag**；`main` = `bb564e6` |
+| GitHub ↔ Gitea 自动镜像 | 未配置；当前是一次性全量推送，之后靠人工同步 |
 
-- **现状（2026-11-22 核对）**：`one/localmind-x` 在 Gitea 上**还没有建**
-  （`git ls-remote git@git.headwindx.top:one/localmind-x.git` → `Cannot find repository`）。
-  实例禁用了 push-to-create，建仓要走 Gitea API，令牌由 Henry 本人生成（不在聊天里传）。
-  仓库建好后推分支只要一条命令：`git push gitea ci/codemagic-gitea-source`。
-- **迁到 Gitea 不会断 CI**，代价只是把应用重接一次：Codemagic 的 **Add application → HTTPS/SSH**
-  支持任意自建 Git 仓库（见 §2.2）。`codemagic.yaml` 一行都不用改。
-- **迁移前过渡**：可以先按 §2.1 用 GitHub 授权接入跑通第一次构建；Gitea 建好后在 Codemagic 里
-  把应用改指 Gitea（§2.2 + §2.3），之后 GitHub 侧只保留备份角色。
+- **现状（2026-11-22 核对）**：`one/localmind-x` **已经建好，内容也全量推完了**——
+  仓库 id `109`，2026-11-22 15:01:47Z 创建，私有，默认分支 `main`。
+  GitHub 侧的内容已全部推入正本：**10 个分支 + 30 个 tag**；
+  `main` = `bb564e6`，CI 分支 `ci/codemagic-gitea-source` = `e8dab9b`，
+  验收分支 `docs/codemagic-acceptance` = `45bce6b`（两端 commit hash 一致）。
+  核对方式：`git ls-remote --heads git@git.headwindx.top:one/localmind-x.git` → 10 个分支；
+  `git ls-remote --tags …` → 30 个 tag。
+- **仓库已就位，CI 还差控制台两步**：Codemagic 还没接这个仓（Deploy Key 没加、webhook 没配），
+  所以现在推 main 还不会自动触发构建。这两步见 §2.2 / §2.3，是 Henry 在控制台点几下。
+- **接 Gitea 不会断 CI**：Codemagic 的 **Add application → HTTPS/SSH** 支持任意自建 Git 仓库
+  （见 §2.2）。`codemagic.yaml` 一行都不用改，把应用接上即可。
+- **过渡做法**：控制台还没接 Gitea 时，可以先按 §2.1 用 GitHub 授权接入跑通第一次构建
+  （跑的是同一份 yaml、同一套脚本）；接好 Gitea 后在 Codemagic 里把应用改指 Gitea
+  （§2.2 + §2.3），之后 GitHub 侧只保留只读备份角色。
 - 网络前提（2026-11-22 实测）：`code.headwindx.top` 走 Cloudflare，HTTPS 443 可达；
   `git.headwindx.top` 指向 `107.191.113.17`，22 端口直连公网（SSH banner 正常）。
   Codemagic 的构建机需要能出网到这两个地址；若 Cloudflare 侧对未知出口 IP 有拦截，把
@@ -95,13 +104,14 @@
 
 ## 2. Codemagic：把仓库接进来
 
-### 2.1 迁移前过渡：GitHub 授权接入
+### 2.1 过渡/备份用法：GitHub 授权接入
 
 1. [codemagic.io](https://codemagic.io) → **Sign up with GitHub**（用 `dehengxu` 授权，最省事）。
 2. **Add application** → 选 **GitHub** → 授权 → **Install GitHub App**（选账号 `dehengxu` → 只选 `localmind-x` 或全部都行）→ **Next: Select repository** → 选 `dehengxu/localmind-x`。
 3. 项目类型选 **Flutter App** → **Finish: Add application**。
 
-> 这条路只用于 Gitea 建仓之前的过渡；§0 的正本口径以 Gitea 为准，GitHub 源降级为备注。
+> 正本仓已经在 Gitea 建好（§0），GitHub 源已降级为只读备份；这条路只作**过渡**——
+> 控制台还没接 Gitea 时，用它跑通第一次构建（跑的是同一份 yaml）。
 
 ### 2.2 正本方式：Gitea HTTPS/SSH 接入
 
@@ -293,7 +303,7 @@ ASC 侧三个命令都查一遍、取返回数字的最大值（命令名取自 
 | Codemagic 找不到 `app_store` 环境变量组 | 删掉 `codemagic.yaml` 里 `environment.groups` 两行 → §3.3 |
 | 上传后 TestFlight 看不到 | App 记录的 Bundle ID 与构建包不一致 → 核对 §1.2 与工程里的 `PRODUCT_BUNDLE_IDENTIFIER`（应为 `top.headwindx.localmind`） |
 | Codemagic 里保存仓库地址时报连不上 | 出网被拦：确认构建机能到 `git.headwindx.top:22` 与 `code.headwindx.top:443`；必要时放行 Codemagic 出口 IP → §0 |
-| 推 main 没触发构建 | Gitea webhook 没配或 payload 没被识别 → §2.3（含待核说明与三条兜底） |
+| 推 main 没触发构建 | 仓库已在 Gitea（§0），多半是 webhook 还没配 → §2.3（含三条兜底：手动 Start build / Builds API / 定时） |
 
 ## 6. 配置对照表（yaml ↔ 控制台）
 
@@ -317,7 +327,7 @@ ASC 侧三个命令都查一遍、取返回数字的最大值（命令名取自 
 | 1 | **10 位 Team ID** | developer.apple.com/account → Membership details | 填 `XCODE_TEAM_ID`，CI 覆盖 pbxproj 里的空占位 | 不给也能构建（签名团队由描述文件决定），但工程里 Team 仍是空占位 |
 | 2 | **ASC 的数字 Apple ID**（App 记录 id，纯数字） | App Store Connect → Apps → LocalMind X → App 信息 | 填 `APP_STORE_APPLE_ID`，构建号才能参考 ASC 上的最大号 | 构建号只按 Codemagic 计数 + pubspec 推导，可能被 Apple 以「版本号必须更大」拒收 |
 | 3 | **Codemagic 控制台里 ASC 集成的真实名字** | Team settings → Integrations → Developer Portal → Manage keys | 与 yaml 的 `integrations.app_store_connect` 对齐 | yaml 与控制台对不上 → 取不到签名材料，构建直接失败。当前 yaml 写的是 `App Manager`（依据见 §3.1） |
-| 4 | **Gitea 令牌**（如需我代跑建仓 API） | Gitea → Settings → Applications → 生成，令牌不经过聊天 | 建 `one/localmind-x` 仓库（实例禁用 push-to-create），以及推本席分支到 Gitea | 仓库不存在 → Codemagic 接不上 Gitea，CI 只能继续用 GitHub 源 |
+| 4 | **Gitea API 令牌**（已非必需，建议补一条） | Gitea → Settings → Applications → Generate New Token（勾 `repo` / `write:repository`），令牌不经过聊天 | 建仓已完成、正本内容已全量推送；后续用 API 做加 Deploy Key 等操作时用（现有可用凭据是账号口令走 HTTP Basic，不是 API token） | 不给不影响 CI 跑通；只是后续 API 操作要走别的路 |
 | 5 | **Codemagic 应用接入 Gitea 的密钥方式**（Henry 在控制台点 Generate key pair 或上传自有私钥） | Codemagic → Add application → HTTPS/SSH | 决定用哪种密钥方式拿公钥去 Gitea 加 Deploy Key | 拉不到私有仓库 → 构建在 clone 阶段失败 |
 | 6 | **Codemagic 应用的 payload URL** | Codemagic 应用设置 → **Webhooks** → 复制 payload URL | 贴进 Gitea 仓库 Settings → Webhooks 的 Target URL | 推 main 不自动触发构建（只能手动 Start build） |
 | 7 | **内部测试组名** | App Store Connect → TestFlight | 与 yaml 的 `beta_groups` 一致 | 上传成功但发不进测试组 |
