@@ -66,7 +66,7 @@
 | Type | **App IDs → App** | |
 | Description | `LocalMind X` | |
 | Bundle ID | **Explicit**：`top.headwindx.localmind` | **必须与 `codemagic.yaml` 的 `environment.ios_signing.bundle_identifier` 完全一致** |
-| Capabilities | 勾 **Push Notifications** | 仓库 `ios/Runner/Runner.entitlements` 里有 `aps-environment`，不勾首次导出会报描述文件缺 capability |
+| Capabilities | **首次构建不勾**（首版不带 Push） | 仓库的 `ios/Runner/Runner.entitlements` 已移除 `aps-environment`；勾了 Push 而工程不同步会在签名阶段报 entitlement 不匹配。要开 Push 见 §3.5 |
 
 ### 1.3 创建 App Store Connect API Key（.p8）
 
@@ -241,6 +241,14 @@ Codemagic 官方口径（"Starting builds automatically with codemagic.yaml"）�
 
 > 分支必须选 `docs/gitea-repo-live`：main 冻结在旧代码上，按 main 构建会跑旧 yaml，必失败。
 
+> **首版不带 Push（entitlement 口径）**：`ios/Runner/Runner.entitlements` 里的 `aps-environment` 已移除。
+> 原因：`CODE_SIGN_ENTITLEMENTS` 在 Profile / Release / Debug 三个配置都指向这一个文件，
+> 而发行描述文件里的 `aps-environment` 是 `production`；应用若声明 `development`，
+> codesign 会报「entitlements 与描述文件不匹配」，构建停在签名阶段。
+> 应用申请的 entitlement 必须是描述文件的子集 —— 不申请就不会冲突。
+> **以后要开 Push**：① App ID 勾上 Push Notifications；② 把 `ios/Runner/Runner.entitlements` 改回
+> `aps-environment = production`；③ 重新构建（描述文件由 `use-profiles` 按新 capability 生成）。
+> ② 单独改会冲突（描述文件里没有 `production`）；① 单独改不会冲突，但推送功能不会生效。
 
 流水线依次执行：
 
@@ -315,6 +323,7 @@ ASC 侧三个命令都查一遍、取返回数字的最大值（命令名取自 
 | 构建报 `Flutter version 3.44.2 not available` | Codemagic 版本列表落后：`codemagic.yaml` 的 `environment.flutter` 改成 `stable`，或改成控制台 Flutter 下拉里有的版本（仓库 `.fvmrc` 锁的是 3.44.2） |
 | `No profiles for 'top.headwindx.localmind' were found` | App ID 没注册 / 勾了 Push Notifications 但描述文件没有该 capability → 重做 §1.2；或 §3.1 的集成没连上 |
 | 签名报 team 不符 / `requires a development team` | `XCODE_TEAM_ID` 没配或格式不对（必须 10 位字母数字）→ §3.2；CI 也会把该错误直接打出来 |
+| 签名/导出阶段报 entitlements 与描述文件不匹配（如 `aps-environment` 的 `development` 对不上 profile 的 `production`） | 首版不应出现：仓库的 `ios/Runner/Runner.entitlements` 已移除 `aps-environment`（见 §3.5）。若出现，多半是构建的不是 `docs/gitea-repo-live` 当前 tip，或有人手工加回了 `aps-environment` → 核对构建日志里的 commit SHA |
 | 401 / 403（ASC 相关） | `.p8` / Key ID / Issuer ID 不匹配，或角色不是 App Manager → 重做 §1.3 / §3.1 |
 | 提示找不到 App Store Connect 集成 / 签名材料为空 | `integrations.app_store_connect` 的名字和控制台里的不一致 → §3.1（控制台改名必须同步改 yaml 这一行） |
 | 上传被拒：`The bundle version must be greater than the previously uploaded version` | 构建号撞号：配 `APP_STORE_APPLE_ID`（§3.2）+ 环境变量组 `app_store`（§3.3），让号取自 ASC 最大号 + 1；不配则至少靠 `pubspec.yaml` 的 build 号兜底 |
