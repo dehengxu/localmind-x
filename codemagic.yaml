@@ -61,7 +61,11 @@ workflows:
     environment:
       # 3.44.2 = 仓库根 .fvmrc 锁定的版本（Flutter 3.44.2 / Dart 3.12.2，2026-06-10 发布）
       flutter: 3.44.2
-      xcode: latest
+      # Xcode 钉 26.6，不用 latest：Codemagic 官方口径 latest 指向「最新 release」（现为 27.2，
+      # 对应 macOS 27.2 镜像），Apple 发新 major 时会漂移；26.6 是 Codemagic 镜像默认档
+      # （macOS 26.5.1 / iOS 26.5 runtime，Mac mini M2 与 M4 都有），也落在 Flutter 3.44.2
+      # 的支持区间内（该 SDK 要求 Xcode ≥ 15、推荐 16）。
+      xcode: 26.6
       cocoapods: default
       # 从 App Store Connect 集成里取签名证书 + 描述文件（bundle id 必须与 App ID 一致）
       ios_signing:
