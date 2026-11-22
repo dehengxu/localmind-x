@@ -248,7 +248,7 @@ Codemagic 官方口径（"Starting builds automatically with codemagic.yaml"）�
 > 应用申请的 entitlement 必须是描述文件的子集 —— 不申请就不会冲突。
 > **以后要开 Push**：① App ID 勾上 Push Notifications；② 把 `ios/Runner/Runner.entitlements` 改回
 > `aps-environment = production`；③ 重新构建（描述文件由 `use-profiles` 按新 capability 生成）。
-> ② 单独改会冲突（描述文件里没有 `production`）；① 单独改不会冲突，但推送功能不会生效。
+> ② 单独改会冲突（描述文件里没有 `production`）；① 单独改不会冲突，但推送功能不会生效。**但这三步只是必要条件**：仓库当前只有 `flutter_local_notifications`（本地通知），**没有 firebase_messaging、没有 APNs token 代码**——客户端不做改造时，entitlement 与描述文件都到位也收不到推送；**摘掉 `aps-environment` 不影响现有任何功能**（应用只有本地通知，本来就不需要这个 entitlement）。
 
 流水线依次执行：
 
@@ -361,3 +361,7 @@ ASC 侧三个命令都查一遍、取返回数字的最大值（命令名取自 
 | 5 | **Codemagic 应用接入 Gitea 的密钥方式**（Henry 在控制台点 Generate key pair 或上传自有私钥） | Codemagic → Add application → HTTPS/SSH | 决定用哪种密钥方式拿公钥去 Gitea 加 Deploy Key | 拉不到私有仓库 → 构建在 clone 阶段失败 |
 | 6 | **Codemagic 应用的 payload URL** | Codemagic 应用设置 → **Webhooks** → 复制 payload URL | 贴进 Gitea 仓库 Settings → Webhooks 的 Target URL | 推触发分支不自动触发构建（只能手动 Start build） |
 | 7 | **内部测试组名** | App Store Connect → TestFlight | 与 yaml 的 `beta_groups` 一致 | 上传成功但发不进测试组 |
+
+## 8. 已知限制（不影响本次构建与安装）
+
+- **iOS 小组件在 v1 不存在，也不需要 App Group**：`ios/Runner.xcodeproj/project.pbxproj` 里匹配 `widget` 的行数 = 0（`ios/` 下只有 `Runner`，没有 widget extension target；Android 侧才有 `android/app/src/main/kotlin/pro/momin/localmind/LocalMindWidgetProvider.kt`）。Dart 侧 `lib/features/os_widget/data/os_widget_service.dart:22` 的 `appGroupId` 仍是上游的 `group.pro.momin.localmind`，而 `ios/Runner/Runner.entitlements` 现已清空（`plistlib` 实测 `keys=[]`）→ **以后若要接 iOS 小组件**，需要 Henry 建同名 App Group 或改 `appGroupId` 为自有组名，并在 entitlements 里加 `application-groups`；**v1 不影响本次构建、安装与 TestFlight 验收**。
