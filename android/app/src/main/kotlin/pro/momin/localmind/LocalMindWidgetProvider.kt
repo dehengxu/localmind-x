@@ -32,7 +32,7 @@ class LocalMindWidgetProvider : HomeWidgetProvider() {
                 val searchIntent = HomeWidgetLaunchIntent.getActivity(
                     context,
                     MainActivity::class.java,
-                    Uri.parse("localmind://widget?action=chat")
+                    Uri.parse("localmindx://widget?action=chat")
                 )
                 setOnClickPendingIntent(R.id.appwidget_search_bar, searchIntent)
 
@@ -40,7 +40,7 @@ class LocalMindWidgetProvider : HomeWidgetProvider() {
                 val voiceIntent = HomeWidgetLaunchIntent.getActivity(
                     context,
                     MainActivity::class.java,
-                    Uri.parse("localmind://widget?action=voice")
+                    Uri.parse("localmindx://widget?action=voice")
                 )
                 setOnClickPendingIntent(R.id.appwidget_btn_voice, voiceIntent)
 
@@ -48,7 +48,7 @@ class LocalMindWidgetProvider : HomeWidgetProvider() {
                 val newChatIntent = HomeWidgetLaunchIntent.getActivity(
                     context,
                     MainActivity::class.java,
-                    Uri.parse("localmind://widget?action=new_chat")
+                    Uri.parse("localmindx://widget?action=new_chat")
                 )
                 setOnClickPendingIntent(R.id.appwidget_btn_new_chat, newChatIntent)
 
@@ -56,7 +56,7 @@ class LocalMindWidgetProvider : HomeWidgetProvider() {
                 val askModelIntent = HomeWidgetLaunchIntent.getActivity(
                     context,
                     MainActivity::class.java,
-                    Uri.parse("localmind://widget?action=chat")
+                    Uri.parse("localmindx://widget?action=chat")
                 )
                 setOnClickPendingIntent(R.id.appwidget_btn_ask_model, askModelIntent)
             }

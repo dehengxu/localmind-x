@@ -125,20 +125,20 @@ void main() {
         stack: StackTrace.fromString(longStack),
       );
       final service = CrashReportService.instance;
-      final url = service.buildGitHubIssueUrl(report).toString();
+      final url = service.buildIssueUrl(report).toString();
       expect(url.length, lessThan(8192));
     });
   });
 
   group('CrashReportService', () {
-    test('buildGitHubIssueUrl prefills diagnostics without a template', () {
+    test('buildIssueUrl prefills diagnostics without a template', () {
       final report = _makeReport(
         error: Exception('Boom'),
         stack: StackTrace.current,
       );
-      final uri = CrashReportService.instance.buildGitHubIssueUrl(report);
-      expect(uri.host, 'github.com');
-      expect(uri.path, '/abdulmominsakib/localmind/issues/new');
+      final uri = CrashReportService.instance.buildIssueUrl(report);
+      expect(uri.host, 'code.headwindx.top');
+      expect(uri.path, '/one/localmind-x/issues/new');
       expect(uri.queryParameters, isNot(contains('template')));
       expect(uri.queryParameters['labels'], 'crash,bug');
       expect(uri.queryParameters['title'], 'Crash: Exception: Boom');
@@ -147,7 +147,7 @@ void main() {
 
     test('buildFeedbackIssueUrl points to the feedback form', () {
       final uri = CrashReportService.instance.buildFeedbackIssueUrl();
-      expect(uri.path, '/abdulmominsakib/localmind/issues/new');
+      expect(uri.path, '/one/localmind-x/issues/new');
       expect(uri.queryParameters['template'], 'crash_report.md');
       expect(uri.queryParameters['labels'], 'feedback');
       expect(uri.queryParameters['title'], 'Feedback');

@@ -1254,8 +1254,8 @@ class OpenRouterChatService implements ChatService {
           headers: {
             'Content-Type': 'application/json',
             ...buildServerAuthHeaders(server),
-            'HTTP-Referer': 'https://localmind.app',
-            'X-Title': 'LocalMind',
+            'HTTP-Referer': 'https://code.headwindx.top',
+            'X-Title': 'LocalMind X',
           },
         ),
         cancelToken: _cancelToken,

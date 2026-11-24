@@ -478,7 +478,7 @@ class _SettingsViewsState extends ConsumerState<SettingsViews> {
   }
 }
 
-const _repositoryUrl = 'https://github.com/abdulmominsakib/localmind';
+const _repositoryUrl = 'https://code.headwindx.top/one/localmind-x';
 
 /// Opens the GitHub repository; a failed or refused launch shows a message
 /// rather than throwing.

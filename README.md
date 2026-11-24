@@ -1,34 +1,23 @@
-# LocalMind
+# LocalMind X
 
 **Your AI. Your Device. Your Rules.**
 
-LocalMind is an open-source Android and iOS chat app for LLMs. Run GGUF and LiteRT models fully offline on your phone, or connect to Ollama, LM Studio, OpenRouter, and any OpenAI-compatible server, with MCP tool support built in.
+LocalMind X is an open-source Android and iOS chat app for LLMs. Run GGUF and LiteRT models fully offline on your phone, or connect to Ollama, LM Studio, OpenRouter, and any OpenAI-compatible server, with MCP tool support built in.
+
+> **Origin.** LocalMind X is an independent continuation of the original LocalMind project by Abdul Momin Sakib, released under the same MIT license. The original project and its contributors are credited under [Contributors](#contributors). Since 2026-11-22 this project develops on its own and no longer merges back upstream.
 
 <p align="center">
-  <a href="https://github.com/abdulmominsakib/localmind/releases/latest"><img src="https://img.shields.io/github/v/release/abdulmominsakib/localmind" alt="Latest release" /></a>
-  <a href="LICENSE"><img src="https://img.shields.io/github/license/abdulmominsakib/localmind" alt="MIT License" /></a>
-  <a href="https://github.com/abdulmominsakib/localmind/stargazers"><img src="https://img.shields.io/github/stars/abdulmominsakib/localmind" alt="GitHub stars" /></a>
+  <a href="https://code.headwindx.top/one/localmind-x"><img src="https://img.shields.io/badge/source-code.headwindx.top%2Fone%2Flocalmind-x-0f6d8c" alt="Source repository" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="MIT License" /></a>
   <img src="https://img.shields.io/badge/platform-Android%20%7C%20iOS-blue" alt="Platforms: Android and iOS" />
   <img src="https://img.shields.io/badge/Flutter-3.44-02569B?logo=flutter" alt="Flutter 3.44" />
 </p>
 
-![LocalMind app screens](docs/cover.webp)
-
-<p align="center">
-  <a href="https://apps.apple.com/us/app/localmind-ollama-lm-studio/id6777025480">
-    <img src="docs/appstore_download_button.svg" width="200" alt="Download on the App Store" />
-  </a>
-  <a href="https://play.google.com/store/apps/details?id=pro.momin.localmind">
-    <img src="docs/playstore_download_button.webp" width="200" alt="Get it on Google Play" />
-  </a>
-  <a href="https://github.com/abdulmominsakib/localmind/releases">
-    <img src="docs/github_download_button.webp" width="200" alt="Download the APK from GitHub Releases" />
-  </a>
-</p>
+![LocalMind X app screens](docs/cover.webp)
 
 ## Vision
 
-Built for those who value privacy and performance, LocalMind runs models directly on your device or connects straight to your own inference servers like **LM Studio** or **Ollama**, as well as cloud providers like **OpenRouter** or **Requesty**. No middleware, no tracking, and no hidden subscriptions. Just you and your models.
+Built for those who value privacy and performance, LocalMind X runs models directly on your device or connects straight to your own inference servers like **LM Studio** or **Ollama**, as well as cloud providers like **OpenRouter** or **Requesty**. No middleware, no tracking, and no hidden subscriptions. Just you and your models.
 
 ## Supported Backends
 
@@ -72,7 +61,7 @@ Built for those who value privacy and performance, LocalMind runs models directl
 
 ## Tech Stack
 
-LocalMind is built with modern, scalable technologies:
+LocalMind X is built with modern, scalable technologies:
 
 - **Framework**: [Flutter](https://flutter.dev/) 3.44 (pinned with [FVM](https://fvm.app/))
 - **On-Device AI**: `llamadart` + `flutter_gemma` (supporting llama.cpp & LiteRT) for native, high-performance localized inference.
@@ -86,12 +75,12 @@ LocalMind is built with modern, scalable technologies:
 
 - **Zero Analytics**: We don't track how you use the app.
 - **Local Storage**: Your conversations are stored only on your device.
-- **Direct Traffic**: Network requests go directly to _your_ servers. LocalMind never sees your data.
+- **Direct Traffic**: Network requests go directly to _your_ servers. LocalMind X never sees your data.
 - **Encrypted Sync (optional)**: Cloud sync is end-to-end encrypted and only talks to an S3 bucket you control.
 
 ## Contributors
 
-We are incredibly grateful to the developers who have helped build LocalMind:
+LocalMind X stands on the work of the original LocalMind project. We are incredibly grateful to the developers who helped build it:
 
 <p align="left">
   <a href="https://github.com/abdulmominsakib">
@@ -116,7 +105,7 @@ We are incredibly grateful to the developers who have helped build LocalMind:
 
 ## Recently Shipped
 
-Have an idea for what comes next? [Open a feature request](https://github.com/abdulmominsakib/localmind/issues/new/choose).
+Have an idea for what comes next? [Open a feature request](https://code.headwindx.top/one/localmind-x/issues/new).
 
 - [x] **AI Voice (Text-to-Speech)**: Listen to your AI's responses with high-quality TTS.
 - [x] **Context Smart Replies**: Integrated suggested follow-ups to keep the conversation flowing.
@@ -138,8 +127,8 @@ Have an idea for what comes next? [Open a feature request](https://github.com/ab
 ### Installation
 
 ```bash
-git clone https://github.com/abdulmominsakib/localmind.git
-cd localmind
+git clone git@git.headwindx.top:one/localmind-x.git
+cd localmind-x
 fvm install
 fvm flutter pub get
 fvm flutter run
@@ -164,4 +153,4 @@ Contributions are welcome. Read [AGENTS.md](AGENTS.md) for the project structure
 
 ## License
 
-LocalMind is open source and available under the [MIT License](LICENSE).
+LocalMind X is open source and available under the [MIT License](LICENSE), the same license as the original LocalMind project.

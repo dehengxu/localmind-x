@@ -149,8 +149,12 @@ class CrashReportService {
 
   static final CrashReportService instance = CrashReportService._();
 
-  static const String repoOwner = 'abdulmominsakib';
-  static const String repoName = 'localmind';
+  /// Source repository that crash reports and feedback are filed against.
+  /// LocalMind X is developed independently on the project's own Gitea
+  /// instance; reports must never land in the upstream repository.
+  static const String repoHost = 'code.headwindx.top';
+  static const String repoOwner = 'one';
+  static const String repoName = 'localmind-x';
   static const String issueTemplate = 'crash_report.md';
 
   final ValueNotifier<CrashReport?> _currentCrash = ValueNotifier<CrashReport?>(
@@ -343,23 +347,23 @@ class CrashReportService {
     _currentCrash.value = report;
   }
 
-  /// Construct a prefilled "new issue" URL pointing at the GitHub repo.
+  /// Construct a prefilled "new issue" URL pointing at the source repository.
   /// `Uri.https` percent-encodes everything — never manually encode.
-  Uri buildGitHubIssueUrl(CrashReport report) {
+  Uri buildIssueUrl(CrashReport report) {
     final title = 'Crash: ${report.shortError}';
     final params = <String, String>{
       'title': title,
       'body': report.markdownBody,
       'labels': 'crash,bug',
     };
-    return Uri.https('github.com', '/$repoOwner/$repoName/issues/new', params);
+    return Uri.https(repoHost, '/$repoOwner/$repoName/issues/new', params);
   }
 
   /// Plain feedback URL used by the "Report a problem" Settings tile —
   /// distinct from the crash flow; no diagnostics are included.
   Uri buildFeedbackIssueUrl() {
     return Uri.https(
-      'github.com',
+      repoHost,
       '/$repoOwner/$repoName/issues/new',
       <String, String>{
         'title': 'Feedback',

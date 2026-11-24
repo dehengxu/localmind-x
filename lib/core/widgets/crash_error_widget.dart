@@ -201,7 +201,7 @@ class CrashErrorWidget extends StatelessWidget {
   }
 
   Future<void> _openGitHub(BuildContext context) async {
-    final uri = CrashReportService.instance.buildGitHubIssueUrl(crash);
+    final uri = CrashReportService.instance.buildIssueUrl(crash);
     final messenger = ScaffoldMessenger.maybeOf(context);
     final l10n = AppLocalizations.of(context);
     try {

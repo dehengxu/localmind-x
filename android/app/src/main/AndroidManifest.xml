@@ -63,7 +63,7 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data
                     android:host="widget"
-                    android:scheme="localmind" />
+                    android:scheme="localmindx" />
             </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.

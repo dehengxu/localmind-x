@@ -24,7 +24,7 @@ class _OnboardingServerTypeScreenState
     extends ConsumerState<OnboardingServerTypeScreen> {
   ServerType? _selectedType;
   static final Uri _repoUrl = Uri.parse(
-    'https://github.com/abdulmominsakib/localmind',
+    'https://code.headwindx.top/one/localmind-x',
   );
 
   @override

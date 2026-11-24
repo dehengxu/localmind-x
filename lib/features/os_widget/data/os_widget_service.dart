@@ -19,7 +19,7 @@ class OsWidgetService {
 
   static const String androidWidgetName = 'LocalMindWidgetProvider';
   static const String iOSWidgetName = 'LocalMindWidget';
-  static const String appGroupId = 'group.pro.momin.localmind';
+  static const String appGroupId = 'group.top.headwindx.localmind';
 
   bool get isSupportedPlatform =>
       isSupportedOverride ??

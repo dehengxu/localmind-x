@@ -14,7 +14,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>LocalMind</string>
+	<string>LocalMind X</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -37,10 +37,10 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>CFBundleURLName</key>
-			<string>pro.momin.localmind</string>
+			<string>top.headwindx.localmind</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>localmind</string>
+				<string>localmindx</string>
 			</array>
 		</dict>
 	</array>

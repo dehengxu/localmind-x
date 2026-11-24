@@ -5,7 +5,7 @@ import 'package:localmind/features/os_widget/data/os_widget_service.dart';
 void main() {
   group('OsWidgetInvocation', () {
     test('parses chat action with prompt', () {
-      final uri = Uri.parse('localmind://widget?action=chat&prompt=Hello%20AI');
+      final uri = Uri.parse('localmindx://widget?action=chat&prompt=Hello%20AI');
       final invocation = OsWidgetInvocation.fromUri(uri);
 
       expect(invocation.action, OsWidgetAction.chat);
@@ -15,7 +15,7 @@ void main() {
 
     test('parses text query parameter as prompt fallback', () {
       final uri = Uri.parse(
-        'localmind://widget?action=chat&text=Explain%20quantum',
+        'localmindx://widget?action=chat&text=Explain%20quantum',
       );
       final invocation = OsWidgetInvocation.fromUri(uri);
 
@@ -24,7 +24,7 @@ void main() {
     });
 
     test('parses new_chat action', () {
-      final uri = Uri.parse('localmind://widget?action=new_chat');
+      final uri = Uri.parse('localmindx://widget?action=new_chat');
       final invocation = OsWidgetInvocation.fromUri(uri);
 
       expect(invocation.action, OsWidgetAction.newChat);
@@ -32,7 +32,7 @@ void main() {
     });
 
     test('parses voice action', () {
-      final uri = Uri.parse('localmind://widget?action=voice');
+      final uri = Uri.parse('localmindx://widget?action=voice');
       final invocation = OsWidgetInvocation.fromUri(uri);
 
       expect(invocation.action, OsWidgetAction.voice);
@@ -40,7 +40,7 @@ void main() {
     });
 
     test('defaults to chat action for unknown or unspecified action', () {
-      final uri = Uri.parse('localmind://widget');
+      final uri = Uri.parse('localmindx://widget');
       final invocation = OsWidgetInvocation.fromUri(uri);
 
       expect(invocation.action, OsWidgetAction.chat);

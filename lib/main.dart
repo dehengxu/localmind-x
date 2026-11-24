@@ -79,8 +79,8 @@ Future<void> main() async {
 
       await JustAudioBackground.init(
         androidNotificationChannelId:
-            'com.abdulmominsakib.localmind.channel.audio',
-        androidNotificationChannelName: 'LocalMind Audio TTS Playback',
+            'top.headwindx.localmind.channel.audio',
+        androidNotificationChannelName: 'LocalMind X Audio TTS Playback',
         androidNotificationOngoing: true,
       );
       runApp(const CrashFallbackApp());

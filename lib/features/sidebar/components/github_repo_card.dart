@@ -9,7 +9,7 @@ class GitHubRepoCard extends StatelessWidget {
   const GitHubRepoCard({super.key});
 
   static final Uri _repoUri = Uri.parse(
-    'https://github.com/abdulmominsakib/localmind',
+    'https://code.headwindx.top/one/localmind-x',
   );
 
   Future<void> _launchUrl(BuildContext context) async {
