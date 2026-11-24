@@ -137,8 +137,8 @@ void main() {
         stack: StackTrace.current,
       );
       final uri = CrashReportService.instance.buildIssueUrl(report);
-      expect(uri.host, 'code.headwindx.top');
-      expect(uri.path, '/one/localmind-x/issues/new');
+      expect(uri.host, 'github.com');
+      expect(uri.path, '/dehengxu/localmind-x/issues/new');
       expect(uri.queryParameters, isNot(contains('template')));
       expect(uri.queryParameters['labels'], 'crash,bug');
       expect(uri.queryParameters['title'], 'Crash: Exception: Boom');
@@ -147,7 +147,7 @@ void main() {
 
     test('buildFeedbackIssueUrl points to the feedback form', () {
       final uri = CrashReportService.instance.buildFeedbackIssueUrl();
-      expect(uri.path, '/one/localmind-x/issues/new');
+      expect(uri.path, '/dehengxu/localmind-x/issues/new');
       expect(uri.queryParameters['template'], 'crash_report.md');
       expect(uri.queryParameters['labels'], 'feedback');
       expect(uri.queryParameters['title'], 'Feedback');

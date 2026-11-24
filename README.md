@@ -4,10 +4,10 @@
 
 LocalMind X is an open-source Android and iOS chat app for LLMs. Run GGUF and LiteRT models fully offline on your phone, or connect to Ollama, LM Studio, OpenRouter, and any OpenAI-compatible server, with MCP tool support built in.
 
-> **Origin.** LocalMind X is an independent continuation of the original LocalMind project by Abdul Momin Sakib, released under the same MIT license. The original project and its contributors are credited under [Contributors](#contributors). Since 2026-11-22 this project develops on its own and no longer merges back upstream.
+> **Origin.** LocalMind X is an independent continuation of the original LocalMind project by Abdul Momin Sakib, released under the same MIT license. The original project and its contributors are credited under [Contributors](#contributors). Since 2026-11-22 this project develops on its own and no longer merges back upstream. CI builds from a self-hosted Gitea repository; the public mirror, the issue tracker and crash reports live on [GitHub](https://github.com/dehengxu/localmind-x).
 
 <p align="center">
-  <a href="https://code.headwindx.top/one/localmind-x"><img src="https://img.shields.io/badge/source-code.headwindx.top%2Fone%2Flocalmind-x-0f6d8c" alt="Source repository" /></a>
+  <a href="https://github.com/dehengxu/localmind-x"><img src="https://img.shields.io/badge/source-github.com%2Fdehengxu%2Flocalmind-x-0f6d8c" alt="Source repository (public mirror)" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="MIT License" /></a>
   <img src="https://img.shields.io/badge/platform-Android%20%7C%20iOS-blue" alt="Platforms: Android and iOS" />
   <img src="https://img.shields.io/badge/Flutter-3.44-02569B?logo=flutter" alt="Flutter 3.44" />
@@ -105,7 +105,7 @@ LocalMind X stands on the work of the original LocalMind project. We are incredi
 
 ## Recently Shipped
 
-Have an idea for what comes next? [Open a feature request](https://code.headwindx.top/one/localmind-x/issues/new).
+Have an idea for what comes next? [Open a feature request](https://github.com/dehengxu/localmind-x/issues/new).
 
 - [x] **AI Voice (Text-to-Speech)**: Listen to your AI's responses with high-quality TTS.
 - [x] **Context Smart Replies**: Integrated suggested follow-ups to keep the conversation flowing.

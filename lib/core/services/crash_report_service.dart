@@ -151,9 +151,12 @@ class CrashReportService {
 
   /// Source repository that crash reports and feedback are filed against.
   /// LocalMind X is developed independently on the project's own Gitea
-  /// instance; reports must never land in the upstream repository.
-  static const String repoHost = 'code.headwindx.top';
-  static const String repoOwner = 'one';
+  /// instance, so reports must never land in the upstream repository.
+  /// CI builds from the self-hosted Gitea repository, which stays private;
+  /// reports are filed against the public mirror on GitHub, because the
+  /// private Gitea issue links bounce every external tester to a login wall.
+  static const String repoHost = 'github.com';
+  static const String repoOwner = 'dehengxu';
   static const String repoName = 'localmind-x';
   static const String issueTemplate = 'crash_report.md';
 
@@ -361,6 +364,8 @@ class CrashReportService {
 
   /// Plain feedback URL used by the "Report a problem" Settings tile —
   /// distinct from the crash flow; no diagnostics are included.
+  /// `issueTemplate` resolves against `.github/ISSUE_TEMPLATE/` on GitHub,
+  /// so the crash-report template is preselected in the new-issue form.
   Uri buildFeedbackIssueUrl() {
     return Uri.https(
       repoHost,
