@@ -49,6 +49,10 @@ final class OsBackgroundDownloadManager: NSObject {
     /// taskId -> hand-off, kept to resolve download tasks back to payloads.
     private var handOffs: [String: HandOff] = [:]
 
+    /// taskId -> running download task, so cancellation does not need the
+    /// async `allTasks` getter (Xcode 26 SDK marks it NS_SWIFT_ASYNC_NAME).
+    private var tasks: [String: URLSessionDownloadTask] = [:]
+
     /// Called by AppDelegate with launchOptions so events delivered while the
     /// app was not running can complete the stored handler.
     func handleLaunch(options: [UIApplication.LaunchOptionsKey: Any]?) {
@@ -120,14 +124,14 @@ final class OsBackgroundDownloadManager: NSObject {
         }
         let task = session.downloadTask(with: request)
         task.taskDescription = handOff.taskId
+        queue.sync { tasks[handOff.taskId] = task }
         os_log("OS download hand-off %{public}@", log: log, type: .info, handOff.taskId)
         task.resume()
     }
 
     private func cancel(taskId: String) {
         queue.sync {
-            let pending = session?.allTasks ?? []
-            for task in pending where task.taskDescription == taskId {
+            if let task = tasks.removeValue(forKey: taskId) {
                 task.cancel()
             }
             handOffs.removeValue(forKey: taskId)

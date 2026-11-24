@@ -38,7 +38,9 @@ import UIKit
         return result
     }
 
-    override func application(
+    // NOTE: Flutter 3.44+ 的 FlutterAppDelegate 不再声明该方法，不能用 override；
+    // 它是 UIApplicationDelegate 的可选方法，去掉 override 才能编译。
+    func application(
         _ application: UIApplication,
         handleEventsForBackgroundURLSession identifier: String,
         completionHandler: @escaping () -> Void
