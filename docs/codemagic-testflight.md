@@ -234,6 +234,9 @@ Codemagic 官方口径（"Starting builds automatically with codemagic.yaml"）�
   选完 Xcode 会把这 3 处写成你的 Team ID；**这个改动不要提交**（它含你的 Team ID，且属于本机配置）。
 - CI 不依赖上面的本地操作：CI 会用 `XCODE_TEAM_ID` 覆盖这 3 处，再由 `xcode-project use-profiles` 按
   App Store Connect 集成里的证书 + 描述文件把签名配置写回工程。
+- **本地 `flutter build` 会改写工作树 —— 构建后的工作树不要直接提交**（2026-11-24 在 dh-mt-mbp 对 tip `cbf3a83` 的干净检出实测：构建前 `git status` 为空，构建后 `ios/Runner.xcodeproj/project.pbxproj` 少 3 行、`ios/Podfile.lock` 变动 6 行（3 增 3 删）；另一轮构建另观测到 `pubspec.lock` 被裁掉 93 行，未在干净检出上复现）。
+  少掉的那 3 行正是上面 `DEVELOPMENT_TEAM = "";` 旁的 `TODO(hxy)` 占位注释（`DEVELOPMENT_TEAM = "";` 本身仍在，CI 用 `sed` 覆盖 `DEVELOPMENT_TEAM` 的那一步仍能匹配）——**仓库里那 3 行占位注释才是发布前替换 Team ID 的路径提示**，被构建抹掉后再提交就找不回来了。
+  提交前先 `git status` 与 `git diff ios/Runner.xcodeproj/project.pbxproj` 分清哪些是构建改的；带真实 Team ID 的本地改动同样不要提交（见上）。
 
 ### 3.5 首次构建
 
